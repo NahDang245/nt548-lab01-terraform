@@ -1,0 +1,14 @@
+output "vpc_id" { value = module.vpc.vpc_id }
+output "default_sg_id" { value = module.vpc.default_sg_id }
+output "public_subnet_id" { value = module.vpc.public_subnet_id }
+output "private_subnet_id" { value = module.vpc.private_subnet_id }
+output "igw_id" { value = module.vpc.igw_id }
+output "nat_gateway_id" { value = module.nat_gateway.nat_gateway_id }
+output "public_route_table_id" { value = module.route_tables.public_route_table_id }
+output "private_route_table_id" { value = module.route_tables.private_route_table_id }
+output "public_sg_id" { value = module.security_groups.public_sg_id }
+output "private_sg_id" { value = module.security_groups.private_sg_id }
+output "public_instance_id" { value = module.ec2.public_instance_id }
+output "private_instance_id" { value = module.ec2.private_instance_id }
+output "public_instance_ip" { value = module.ec2.public_instance_ip }
+output "private_instance_ip" { value = module.ec2.private_instance_ip }
