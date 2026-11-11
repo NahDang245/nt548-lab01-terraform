@@ -1,10 +1,13 @@
 #!/usr/bin/env bash
-# Test cases kiem tra ha tang sau khi `terraform apply`
-# Chay tu thu muc goc: bash tests/test_infra.sh
+# Test cases kiem tra ha tang TERRAFORM sau khi `terraform apply`
+# Chay tu thu muc goc project: bash tests/test_infra.sh
 set -u
 PASS=0; FAIL=0
 
-out() { terraform output -raw "$1"; }
+# AWS CLI tren Windows (Git Bash) co the tra ve ky tu \r cuoi dong -> loai bo
+aws() { command aws "$@" | tr -d '\r'; }
+out() { terraform output -raw "$1" | tr -d '\r'; }
+port_open() { timeout 5 bash -c "exec 3<>/dev/tcp/$1/$2" 2>/dev/null && echo open || echo closed; }
 check() { # check "mo ta" "gia tri thuc te" "gia tri mong doi"
   if [[ "$2" == "$3" ]]; then echo "  [PASS] $1"; PASS=$((PASS+1))
   else echo "  [FAIL] $1 (thuc te: '$2', mong doi: '$3')"; FAIL=$((FAIL+1)); fi
@@ -51,10 +54,8 @@ check "Private EC2 KHONG co public IP" "$(aws ec2 describe-instances --instance-
 check "Public EC2 trong public subnet" "$(aws ec2 describe-instances --instance-ids $PUB_EC2 --query 'Reservations[0].Instances[0].SubnetId' --output text)" "$PUB_SN"
 check "Private EC2 trong private subnet" "$(aws ec2 describe-instances --instance-ids $PRI_EC2 --query 'Reservations[0].Instances[0].SubnetId' --output text)" "$PRI_SN"
 
-echo "== TC7: Ket noi (SSH port) =="
-if command -v nc >/dev/null; then
-  check "Public EC2 mo port 22 tu may ban" "$(nc -z -w5 $PUB_IP 22 && echo open || echo closed)" "open"
-fi
+echo "== TC7: Ket noi =="
+check "Public EC2 mo port 22 tu may ban" "$(port_open $PUB_IP 22)" "open"
 echo "  (Test SSH Public->Private va Private->Internet lam thu cong, xem README)"
 
 echo; echo "KET QUA: $PASS passed, $FAIL failed"
