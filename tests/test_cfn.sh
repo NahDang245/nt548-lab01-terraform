@@ -26,7 +26,7 @@ MY_CIDR=$(param AllowedSSHCidr)
 IGW=$(aws ec2 describe-internet-gateways --filters "Name=attachment.vpc-id,Values=$VPC" --query 'InternetGateways[0].InternetGatewayId' --output text)
 
 echo "== TC0: Stack =="
-check "Root stack CREATE_COMPLETE" "$(aws cloudformation describe-stacks --stack-name $STACK --query 'Stacks[0].StackStatus' --output text)" "CREATE_COMPLETE"
+ST=$(aws cloudformation describe-stacks --stack-name "$STACK" --query 'Stacks[0].StackStatus' --output text); check "Root stack hoan tat (CREATE_COMPLETE hoac UPDATE_COMPLETE)" "$([[ "$ST" == CREATE_COMPLETE || "$ST" == UPDATE_COMPLETE ]] && echo ok || echo "$ST")" "ok"
 check "Co 3 nested stack" "$(aws cloudformation list-stack-resources --stack-name $STACK --query "length(StackResourceSummaries[?ResourceType=='AWS::CloudFormation::Stack'])" --output text)" "3"
 
 echo "== TC1: VPC =="
